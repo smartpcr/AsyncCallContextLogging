@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Nito.AsyncEx.AsyncDiagnostics</name>
+    </assembly>
+    <members>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect">
+            <summary>
+            An aspect that applies an async diagnostic stack to both synchronous and asynchronous methods.
+            </summary>
+        </member>
+        <member name="F:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect._methodName">
+            <summary>
+            The method name for this aspect instance, calculated at build time.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect.#ctor">
+            <summary>
+            Creates an aspect that applies an async diagnostic stack to both synchronous and asynchronous methods.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect.CompileTimeInitialize(System.Reflection.MethodBase,PostSharp.Aspects.AspectInfo)">
+            <summary>
+            Calculates and saves the method name that will later be pushed on to the diagnostic stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect.OnEntry(PostSharp.Aspects.MethodExecutionArgs)">
+            <summary>
+            Pushes the method name onto the asynchronous diagnostic stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect.OnExit(PostSharp.Aspects.MethodExecutionArgs)">
+            <summary>
+            Pops the method name off the asynchronous diagnostic stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticAspect.MethodName(System.Reflection.MethodBase)">
+            <summary>
+            Generates a human-readable, C#-ish string for a method, essentially the same as the formatting done by the built-in stack traces.
+            </summary>
+            <param name="method">The method to inspect.</param>
+        </member>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack">
+            <summary>
+            Provides an async-aware diagnostic stack.
+            </summary>
+        </member>
+        <member name="F:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.Stack">
+            <summary>
+            The underlying async-aware stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.#cctor">
+            <summary>
+            Initializes the async-aware diagnostic stack, including a domain-wide hook to place the stack on all raised exceptions.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.Push(System.String)">
+            <summary>
+            Pushes a context value onto the async diagnostic stack.
+            </summary>
+            <param name="context">The context.</param>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.Pop">
+            <summary>
+            Pops a context value off the async diagnostic stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.Enter(System.String)">
+            <summary>
+            Pushes a context value onto the async diagnostic stack, and returns a disposable that pops the context value off the async diagnostic stack when disposed.
+            </summary>
+            <param name="context">The context.</param>
+            <returns>A disposable that pops the context value off the async diagnostic stack when disposed.</returns>
+        </member>
+        <member name="P:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.DataKey">
+            <summary>
+            The <see cref="P:System.Exception.Data"/> key under which the async diagnostic stack is added to each exception.
+            </summary>
+        </member>
+        <member name="P:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.Current">
+            <summary>
+            Gets the current async diagnostic stack.
+            </summary>
+        </member>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.PopWhenDisposed">
+            <summary>
+            A disposable that pops the context value off the async diagnostic stack when disposed.
+            </summary>
+        </member>
+        <member name="F:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.PopWhenDisposed._disposed">
+            <summary>
+            Whether this disposable has already been disposed.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.AsyncDiagnosticStack.PopWhenDisposed.Dispose">
+            <summary>
+            Pops the context value off the async diagnostic stack.
+            </summary>
+        </member>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.ExceptionExtensions">
+            <summary>
+            Extension methods for the <see cref="T:System.Exception"/> type.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.ExceptionExtensions.ToAsyncDiagnosticString(System.Exception)">
+            <summary>
+            Returns <see cref="M:System.Exception.ToString"/> concatenated with the <see cref="M:Nito.AsyncEx.AsyncDiagnostics.ExceptionExtensions.AsyncDiagnosticStack(System.Exception)"/> for this exception and any inner exceptions. This can be used as a replacement for <see cref="M:System.Exception.ToString"/>.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.ExceptionExtensions.AsyncDiagnosticStack(System.Exception)">
+            <summary>
+            Returns the async diagnostic stack attached to this <see cref="T:System.Exception"/>, or <see cref="F:System.String.Empty"/> if there is no async diagnostic stack. This does not return any details for inner exceptions.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.ExceptionExtensions.NestedAsyncDiagnosticStacks(System.Exception)">
+            <summary>
+            Returns the logical stack for this exception, including any async diagnostic stacks of inner exceptions as well.
+            </summary>
+        </member>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1">
+            <summary>
+            Data that is "local" to the current async method. This is the async equivalent of <c>ThreadLocal&lt;T&gt;</c>.
+            </summary>
+            <typeparam name="TImmutableType">The type of the data. This must be an immutable type.</typeparam>
+        </member>
+        <member name="F:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1._slotName">
+            <summary>
+            Our unique slot name.
+            </summary>
+        </member>
+        <member name="F:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1._empty">
+            <summary>
+            The value representing "none".
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1.#ctor">
+            <summary>
+            Creates a new async-local variable with "empty" defined as default value of <typeparamref name="TImmutableType"/>.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1.#ctor(`0)">
+            <summary>
+            Creates a new async-local variable with "empty" defined as the specified value of <typeparamref name="TImmutableType"/>.
+            </summary>
+            <param name="empty">The value to return when there is no data yet.</param>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1.Dispose">
+            <summary>
+            Deletes this async-local variable.
+            </summary>
+        </member>
+        <member name="P:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocal`1.Value">
+            <summary>
+            Gets or sets the value of this async-local variable.
+            </summary>
+        </member>
+        <member name="T:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1">
+            <summary>
+            An async-local stack.
+            </summary>
+            <typeparam name="T">The type of values on the stack.</typeparam>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.#ctor">
+            <summary>
+            Creates a new async-local stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.Clear">
+            <summary>
+            Removes all values from the stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.Peek">
+            <summary>
+            Returns the value at the top of the stack without modifying the stack.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.Pop">
+            <summary>
+            Pops the value off the top of the stack and returns it.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.PopDiscardingValue">
+            <summary>
+            Pops the value off the top of the stack and discards it.
+            </summary>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.Push(`0)">
+            <summary>
+            Pushes a value on the top of the stack.
+            </summary>
+            <param name="value">The value to push.</param>
+        </member>
+        <member name="M:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.GetEnumerator">
+            <summary>
+            Enumerates all values in the stack.
+            </summary>
+        </member>
+        <member name="P:Nito.AsyncEx.AsyncDiagnostics.Internal.AsyncLocalStack`1.IsEmpty">
+            <summary>
+            Returns a value indicating whether the stack is empty.
+            </summary>
+        </member>
+    </members>
+</doc>
